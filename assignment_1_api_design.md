@@ -213,3 +213,109 @@ curl -X POST 'https://api.flightbooker.com/flights' \
 | 404  | `Not Match Total Amount With Booking Seats`        | The price of booking seat might changed required to double check and book again |
 | 500  | `Internal Error, Please Contact Technical Support` | Internal error                                                                  |
 
+### 3. Booking History
+
+Search booking history
+
+- **URL**: `/orders`
+- **Method**: `GET`
+- **Description**: Search for booking history.
+
+#### Header
+
+| Key          | Value              |
+| ------------ | ------------------ |
+| Content-Type | `application/json` |
+
+#### Request Parameters
+
+| Parameter     | Type   | Description                                           | Default | Required |
+| ------------- | ------ | ----------------------------------------------------- | ------- | -------- |
+| `customer_id` | id     | Customer id                                           |         | Yes      |
+| `origin`      | string | Departure airport code                                |         | No       |
+| `destination` | string | Destination airport code                              |         | No       |
+| `departure`   | string | Departure date (YYYY-MM-DD)                           |         | No       |
+| `return`      | string | Return date (YYYY-MM-DD)                              |         | No       |
+| `class`       | string | Travel class (`BUSINESS`, `SKYBOSS`, `DELUXE`, `ECO`) |         | No       |
+| `order_date`  | string | Order date (YYYY-MM-DD)                               |         | No       |
+
+#### Response
+
+| Parameter        | Type     | Description                                                                                    | Required |
+| ---------------- | -------- | ---------------------------------------------------------------------------------------------- | -------- |
+| `status`         | string   | Response status (`success`, `error`)                                                           | Yes      |
+| `total`          | int      | Number of available items                                                                      | Yes      |
+| `page_size`      | int      | Biggest number of items in response data                                                       | Yes      |
+| `current_page`   | int      | Page index start from 0                                                                        | Yes      |
+| `data`           | array    | Array of order detail in json format                                                           | Yes      |
+| `order_id`       | int      | Order detail                                                                                   | Yes      |
+| `order_status`   | string   | Order status (`ORDER_PROCESSING`, `WAIT_FOR_PAYMENT`, `TICKET_PROCESSING`, `TICKET_DELIVERED`) | Yes      |
+| `created_date`   | datetime | Order created date (UTC format)                                                                | Yes      |
+| `updated_date`   | datetime | Order updated date (UTC format)                                                                | Yes      |
+| `customer`       | json     | Customer information                                                                           | Yes      |
+| `payment`        | json     | Payment information (empty if there is no payment received)                                    | Yes      |
+| `total`          | string   | Total amount of received payment                                                               | Yes      |
+| `payment_items`  | string   | Total amount of received payment                                                               | Yes      |
+| `payment_id`     | int      | Payment information                                                                            | Yes      |
+| `payment_method` | string   | Payment method (`CASH`, `CARD`, `TRANSFER`)                                                    | Yes      |
+| `payment_amount` | string   | Payment amount                                                                                 | Yes      |
+| `tickets`        | array    | Created tickets (empty if no ticket created)                                                   | Yes      |
+| `ticket_id`      | int      | Ticket id                                                                                      | Yes      |
+| `flight_id`      | int      | Flight id                                                                                      | Yes      |
+| `seat_number`    | int      | Seat number                                                                                    | Yes      |
+
+#### Example
+
+##### Example Request
+
+```
+curl -X GET "https://api.flightbooker.com/orders?customer_id=1234&origin=LAX" \
+-H "Content-Type: application/json"
+```
+
+##### Example Response
+
+```
+{
+    "status": "success",
+    "data": [
+        {
+            "order_id": 1234,
+            "order_status": "TICKET_DELIVERED",
+            "created_date": "20241001T083000",
+            "updated_date": "20241001T093000",
+            "customer": {
+                "id": 123141,
+                "name": "Nguyen Van A",
+                "phone": "+84 099999999"
+            },
+            "payment": {
+                "total": "1000000",
+                "payment_items": [
+                    {
+                        "payment_id": 1234234,
+                        "payment_method": "CARD",
+                        "payment_amount": "1000000"
+                    }
+                ]
+            },
+            "tickets": [
+                {
+                    "ticket_id": 3242134,
+                    "flight_id": 111
+                    "seat_number": 12
+                }
+            ]
+        },
+        ...
+    ]
+}
+```
+
+#### Errors
+
+| Code | Message                                            | Description                            |
+| ---- | -------------------------------------------------- | -------------------------------------- |
+| 400  | `Invalid Parameters`                               | Missing or incorrect search parameters |
+| 404  | `No Orders Found`                                  | No orders match the search criteria    |
+| 500  | `Internal Error, Please Contact Technical Support` | Internal error                         |
